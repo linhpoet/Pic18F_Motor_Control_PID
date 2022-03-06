@@ -38,24 +38,29 @@ void lcd_string(char *str)
 }
 
 void lcd_number(int num)
-{   
-    int num_div = 10000;                                //ban dau = 10000, co the lay lon hon nen num>100.000
-    int num_test = num;
-    int num_display=0;
-    if (num != 0) while (num_test/num_div <= 0 )                      
+{
+    uint32_t u32TempNum;
+    uint8_t u8Count = 0;
+    uint8_t u8Display[10] ={};
+
+    u32TempNum = num;
+
+    while(u32TempNum>0)
     {
-        num_div /= 10;                                  //tim ra so 10xxx < num gan nhat de thuc hien phep chia 
+        u8Display[u8Count] = u32TempNum % 10;
+        u8Count++;
+        u32TempNum = u32TempNum / 10; 
     }
-    else num_div = 1;
-    
-    do 
+    if(num == 0)
     {
-        num_display = num_test/num_div;
-        lcd_char(num_display + 48U);
-        num_test = num_test - num_div*num_display;
-        num_div /= 10;
+        u8Display[u8Count] = 0;
+        u8Count = 1;
     }
-    while (num_div>=1);
+
+    for(int i=u8Count-1; i>=0; i--)
+    {
+        lcd_char(u8Display[i] + 48);
+    }
 }
 
 void lcd_gotoxy(char row, char pos)

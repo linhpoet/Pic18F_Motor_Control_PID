@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <xc.h>
 
 #define _XTAL_FREQ      20000000

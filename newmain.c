@@ -18,10 +18,10 @@ int state;
 
 Set_Timer1_Counter(void)
 {   
-    TRISCbits.TRISC0 = 1;          //rc0 input
+    TRISCbits.TRISC0 = 1;          
     T1CON = 0x03;
-    TMR1L = 0;                  //clear tmr1l
-    TMR1H = 0;                  //clear tmr1h
+    TMR1L = 0;                 
+    TMR1H = 0;                 
 }
 
 void Set_Timer2_PWM(void)               //Enable PWM o chan RC2/CCP1 va CCP2B
@@ -33,7 +33,6 @@ void Set_Timer2_PWM(void)               //Enable PWM o chan RC2/CCP1 va CCP2B
     CCP2M3 = 1;
     CCP2M2 = 1;
     
-    //bo chia truoc o define_Thanh ghi T2CON//
     if (TMR2PRESCALE == 1)
     {
         T2CKPS0 = 0;
@@ -49,18 +48,17 @@ void Set_Timer2_PWM(void)               //Enable PWM o chan RC2/CCP1 va CCP2B
         T2CKPS0 = 1;
         T2CKPS1 = 1;
     }
-    T2CONbits.TMR2ON = 1;       //timer 2 is on
-    TRISC2 = 0;                 //tris c2 is output
+    T2CONbits.TMR2ON = 1;       
+    TRISC2 = 0;                 
 }
 
-//.........ham tinh PR2(so tick trong 1 chu ky PWM), gia tri vao u32Frequency la tan so mong muon cua PWM.......//
 PWM_Frequency(long u32Frequency)
 {
-    PR2 = (_XTAL_FREQ/(u32Frequency*4*TMR2PRESCALE)-1);     //dung cong thuc, 0<=PR2<=255, nen chu y gia tri u32Frequency dua vao
-    u32TempFrequency = u32Frequency;                        //luu lai gia tri u32Frequency de dung cho viec tinh Duty cycle
+    PR2 = (_XTAL_FREQ/(u32Frequency*4*TMR2PRESCALE)-1);      
+    u32TempFrequency = u32Frequency;                      
 }
 
-PWM_Duty1(unsigned int duty)                //duty dua vao la gia tri PWM mong muon, thi PWM hoat dong voi x=duty*100/1000 (%) 
+PWM_Duty1(unsigned int duty)              
 {
     if (duty<1024)
     {
@@ -71,7 +69,7 @@ PWM_Duty1(unsigned int duty)                //duty dua vao la gia tri PWM mong m
     }
 }
 
-PWM_Duty2(unsigned int duty)                //duty dua vao la gia tri PWM mong muon, thi PWM hoat dong voi x=duty*100/1000 (%) 
+PWM_Duty2(unsigned int duty)               
 {
     if (duty<1024)
     {
@@ -84,9 +82,7 @@ PWM_Duty2(unsigned int duty)                //duty dua vao la gia tri PWM mong m
 
 void ADC_Channel0_Configure()
 {
-    /*Port A Mode input*/
     TRISA = 0xff;
-    /*ADC enable*/
     ADCON0bits.ADON = 1;
     /*0000 analog channel select bits-AN0*/
     ADCON0 &= ~(1<<2);
@@ -113,9 +109,9 @@ int Get_ADC()
 /*PortB interrupt*/
 void PortB_INT_Configuration()
 {
-    TRISB = 0xf0;               //trisB is input
+    TRISB = 0xf0;               
     PORTB = 0xff;               
-    INTCON = 0;                 //clear intcon
+    INTCON = 0;                 
     INTCONbits.GIE = 1;         //enable global interrupt
     INTCONbits.PEIE = 1;        //enable peripheral interrupt
     INTCONbits.RBIE = 1;        //enable portB<7:4> interrupt
@@ -127,9 +123,9 @@ void LCD_Setting()
     CommandTrist = 0;
     CommandPort = 0;
     PortData = 0;
-    lcd_command(Mode8bit2line);					//8bit, 2 dong
-	lcd_command(DisplayOn);						//bat hien thi
-	lcd_command(ClearDisplay);					//clear
+    lcd_command(Mode8bit2line);					
+	lcd_command(DisplayOn);						
+	lcd_command(ClearDisplay);					
 }
 
 void Clear_Timer1()
@@ -148,10 +144,10 @@ void Cauhinh_LCD()
 
 void L298_Configuration()
 {       
-    TRISCbits.TRISC3 = 0;                   //trisc3 is output
-    PORTCbits.RC3 = 0;                      //IN2 ouput = 0
-    TRISCbits.TRISC4 = 0;                   //trisC4 is output
-    PORTCbits.RC4 = 1;                      //ENA output = 1
+    TRISCbits.TRISC3 = 0;                  
+    PORTCbits.RC3 = 0;                     
+    TRISCbits.TRISC4 = 0;                  
+    PORTCbits.RC4 = 1;                      
 }
 
 void Led_Display()
@@ -197,7 +193,7 @@ void main(void) {
     PWM_Frequency(5000);
     Set_Timer1_Counter();
     PortB_INT_Configuration();
-    Kp=1.535;
+    Kp=1.535*2;
     TRISB = 0xf0;
     state = 1;
     while(1)
@@ -228,11 +224,6 @@ void main(void) {
                 __delay_ms(200);                                    
                 so_xung = ((TMR1H<<8) | TMR1L);
                 v_thuc =((so_xung - 0)*10*2/22);
-                /*Theo thuc nghiem de chinh toc do cho dung*/
-                if(v_thuc > 165)
-                   v_thuc--;
-                if(v_thuc > 230)
-                   v_thuc--;
                 lcd_gotoxy(1,9);
                 lcd_number(v_dat);
                 lcd_string(" rpm   ");
@@ -248,11 +239,6 @@ void main(void) {
                 __delay_ms(200);                                    
                 so_xung = ((TMR1H<<8) | TMR1L);
                 v_thuc =((so_xung - 0)*10*2/22);                   
-                /*Theo thuc nghiem de chinh toc do cho dung*/
-                if(v_thuc > 165)
-                   v_thuc--;
-                if(v_thuc > 230)
-                   v_thuc--;
                 lcd_gotoxy(1,9);
                 lcd_string("-");
                 lcd_number(v_dat);
